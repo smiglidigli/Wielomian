@@ -18,11 +18,6 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //Intent intent = getIntent();
-        //float field = intent.getFloatExtra("field", 0);
-        //TextView textField =  findViewById(R.id.textView);
-        //textField.setText("Field: " + Float.toString(field));
-
         Button submitButton = findViewById(R.id.submitButton);
         submitButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {

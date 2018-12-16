@@ -97,7 +97,7 @@ public class PolynomialActivity extends Activity {
     public class PolynomialView extends View {
         private Paint polynomialPaint;
         private Paint descriptionPaint;
-        private int minXvalues = 4;
+        private int minNoOfXOnAxis = 4;
         private int width;
         private int height;
         float scaledX;
@@ -146,10 +146,10 @@ public class PolynomialActivity extends Activity {
             canvas.drawText("X", width - 40, originY - 40, descriptionPaint);
             canvas.drawText("Y", originX + 20, 0 + 30, descriptionPaint);
             //draw values on axes, horizontal right, horizontal left, vertical top, vertical bottom
-            DrawAxis(canvas, polynomialPaint, originX, originY, scaledX, width, 1);
-            DrawAxis(canvas, polynomialPaint, originX, originY, scaledX, width, -1);
-            DrawAxis(canvas, polynomialPaint, originY, originX, scaledY, height, 1);
-            DrawAxis(canvas, polynomialPaint, originY, originX, scaledY, height, -1);
+            DrawAxis(canvas, polynomialPaint, originX, originY, width, 1);
+            DrawAxis(canvas, polynomialPaint, originX, originY, width, -1);
+            DrawAxis(canvas, polynomialPaint, originY, originX, height, 1);
+            DrawAxis(canvas, polynomialPaint, originY, originX, height, -1);
 
             //draw function
             for (int i = 0; i < width; i++) {
@@ -160,8 +160,7 @@ public class PolynomialActivity extends Activity {
 
         private void DrawAxis(Canvas canvas, Paint paint,
                               int drawnAxisOrigin, int otherAxisOrigin,
-                              float scaledPixel, int maxSize,
-                              int multiplier) {
+                              int maxSize, int multiplier) {
             int currentPoint = 0;
             for (int i = drawnAxisOrigin; isBetween(i, 0, height); i += multiplier * Math.round(1 / scaledY)) {
                 if (maxSize == height) {
@@ -176,6 +175,7 @@ public class PolynomialActivity extends Activity {
         }
 
         boolean isTouched = false;
+
         @Override
         public boolean onTouchEvent(MotionEvent event) {
             float eventX = event.getX();
@@ -186,15 +186,15 @@ public class PolynomialActivity extends Activity {
                     touchX = eventX;
                     touchY = eventY;
                     //return true;
-                    if (isBetween(originX,(int)(touchX *0.9),(int)(touchX*1.1))
-                            && isBetween(originY,(int)(touchY *0.9),(int)(touchY*1.1))) {
-                    isTouched = true;
+                    if (isBetween(originX, (int) (touchX * 0.9), (int) (touchX * 1.1))
+                            && isBetween(originY, (int) (touchY * 0.9), (int) (touchY * 1.1))) {
+                        isTouched = true;
                     }
                     break;
                 case MotionEvent.ACTION_MOVE:
                     touchX = eventX;
                     touchY = eventY;
-                    if(isTouched){
+                    if (isTouched) {
                         originX = (int) touchX;
                         originY = (int) touchY;
                     }
@@ -226,61 +226,47 @@ public class PolynomialActivity extends Activity {
 
         private void scale() {
             float delta = delta();
-            float peakX = 0;
-            if (a!=0) peakX = -b / (2 * a);
-            float maxX1 = peakX - minXvalues;
-            float maxX2 = peakX + minXvalues;
-            if (peakX > minXvalues) {
+            float topX = 0;
+            if (a != 0) topX = -b / (2 * a);
+            float maxX1 = topX - minNoOfXOnAxis;
+            float maxX2 = topX + minNoOfXOnAxis;
+            if (topX > minNoOfXOnAxis) {
                 maxX1 = -1;
-                maxX2 = 2 * peakX + 1;
+                maxX2 = 2 * topX + 1;
             }
-            if (peakX < -minXvalues) {
-                maxX1 = 2 * peakX - 1;
+            if (topX < -minNoOfXOnAxis) {
+                maxX1 = 2 * topX - 1;
                 maxX2 = 1;
             }
             float localWidth = maxX2 - maxX1;
             scaledX = localWidth / width;
             originX = Math.round(Math.abs(maxX1) / scaledX);
 
-            float peakY = 0;
-            if(a!=0) peakY = -delta / (4 * a);
+            float topY = 0;
+            if (a != 0) topY = -delta / (4 * a);
             float maxY1 = function(maxX1);
-            float upValue;
-            float downValue;
+            float topValue;
+            float bottomValue;
             if (delta <= 0) {
                 if (a < 0) {
-                    upValue = 1;
-                    downValue = maxY1;
+                    topValue = 1;
+                    bottomValue = maxY1;
                 } else {
-                    upValue = maxY1;
-                    downValue = -1;
+                    topValue = maxY1;
+                    bottomValue = -1;
                 }
             } else {
                 if (a < 0) {
-                    upValue = peakY + 1;
-                    downValue = maxY1;
+                    topValue = topY + 1;
+                    bottomValue = maxY1;
                 } else {
-                    upValue = maxY1;
-                    downValue = peakY - 1;
+                    topValue = maxY1;
+                    bottomValue = topY - 1;
                 }
             }
-            float localHeight = upValue - downValue;
+            float localHeight = topValue - bottomValue;
             scaledY = localHeight / height;
-            originY = Math.round(upValue / scaledY);
-//            if (delta <= 0) {
-//                field = 0;
-//            } else {
-//
-////                float x1 = (float) (-b + Math.sqrt(delta)) / (2 * a);
-////                float y1 = integral(x1);
-////                float x2 = (float) (-b - Math.sqrt(delta)) / (2 * a);
-////                float y2 = integral(x2);
-////                field = y1 - y2;
-//            }
+            originY = Math.round(topValue / scaledY);
         }
-
-//        private float integral(float x) {
-//            return (float) ((1 / 3) * a * x * x * x + 0.5 * b * x * x + c * x);
-//        }
     }
 }
